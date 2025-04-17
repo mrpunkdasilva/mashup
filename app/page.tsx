@@ -8,6 +8,7 @@ import SimplePlate from '@/components/simple-plate'
 import PartyEffects from '@/components/party-effects'
 import { Sidebar, SidebarProvider } from '@/components/ui/sidebar'
 import { ChatSidebar } from '@/components/chat-sidebar'
+import AudioController from '@/components/audio-controller'
 
 export default function Home() {
   const [totalSlices] = useState(40)
@@ -45,9 +46,12 @@ export default function Home() {
         </div>
 
         <div className="relative z-10 h-full w-full p-4 flex flex-col">
-          <h1 className="text-4xl font-bold text-white mb-4 text-center text-shadow-lg">
-            🎉 Bolo Estrela 3D 🎉
-          </h1>
+          <div className="flex items-center justify-between mb-4">
+            <h1 className="text-4xl font-bold text-white text-shadow-lg">
+              🎉 Bolo Estrela 3D 🎉
+            </h1>
+            <AudioController className="mr-4" />
+          </div>
 
           <div className="flex-1 grid grid-cols-1 lg:grid-cols-3 gap-4">
             {/* Canvas Container */}
