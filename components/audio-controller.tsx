@@ -2,22 +2,23 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { motion } from 'framer-motion'
-import { Volume2, VolumeX, Play, Pause } from 'lucide-react'
+import { Volume2, VolumeX, Play, Pause, SkipForward, SkipBack } from 'lucide-react'
+import { playlist, type Song } from '@/lib/playlist'
+import { useAudioStore } from '@/hooks/use-audio-store'
 
 interface AudioControllerProps {
   className?: string
 }
 
 export default function AudioController({ className }: AudioControllerProps) {
-  const [isPlaying, setIsPlaying] = useState(false)
-  const [volume, setVolume] = useState(0.5)
-  const [isMuted, setIsMuted] = useState(false)
+  const audioStore = useAudioStore()
+  const [currentSongIndex, setCurrentSongIndex] = useState(0)
   const audioRef = useRef<HTMLAudioElement | null>(null)
 
   useEffect(() => {
-    audioRef.current = new Audio('/party-music.mp3') // Certifique-se de adicionar esta música na pasta public
-    audioRef.current.loop = true
-    audioRef.current.volume = volume
+    audioRef.current = new Audio(playlist[currentSongIndex].url)
+    audioRef.current.loop = false
+    audioRef.current.volume = audioStore.volume
 
     return () => {
       if (audioRef.current) {
@@ -25,56 +26,110 @@ export default function AudioController({ className }: AudioControllerProps) {
         audioRef.current = null
       }
     }
-  }, [])
+  }, [currentSongIndex])
 
   useEffect(() => {
     if (audioRef.current) {
-      audioRef.current.volume = isMuted ? 0 : volume
+      audioRef.current.volume = audioStore.isMuted ? 0 : audioStore.volume
     }
-  }, [volume, isMuted])
+  }, [audioStore.volume, audioStore.isMuted])
+
+  useEffect(() => {
+    if (!audioRef.current) return
+
+    const handleEnded = () => {
+      nextSong()
+    }
+
+    audioRef.current.addEventListener('ended', handleEnded)
+    return () => audioRef.current?.removeEventListener('ended', handleEnded)
+  }, [currentSongIndex])
 
   const togglePlay = () => {
     if (audioRef.current) {
-      if (isPlaying) {
+      if (audioStore.isPlaying) {
         audioRef.current.pause()
       } else {
         audioRef.current.play()
       }
-      setIsPlaying(!isPlaying)
+      audioStore.setPlaying(!audioStore.isPlaying)
     }
   }
 
   const toggleMute = () => {
-    setIsMuted(!isMuted)
+    audioStore.setMuted(!audioStore.isMuted)
+  }
+
+  const nextSong = () => {
+    const newIndex = (currentSongIndex + 1) % playlist.length
+    setCurrentSongIndex(newIndex)
+    if (audioStore.isPlaying && audioRef.current) {
+      audioRef.current.play()
+    }
+  }
+
+  const previousSong = () => {
+    const newIndex = (currentSongIndex - 1 + playlist.length) % playlist.length
+    setCurrentSongIndex(newIndex)
+    if (audioStore.isPlaying && audioRef.current) {
+      audioRef.current.play()
+    }
   }
 
   return (
     <div className={`flex items-center gap-4 bg-black/20 backdrop-blur-sm rounded-lg p-3 ${className}`}>
-      <motion.button
-        whileTap={{ scale: 0.95 }}
-        onClick={togglePlay}
-        className="w-10 h-10 flex items-center justify-center bg-pink-600 hover:bg-pink-700 rounded-full text-white"
-      >
-        {isPlaying ? <Pause size={20} /> : <Play size={20} />}
-      </motion.button>
+      <div className="flex-1 min-w-0">
+        <p className="text-white text-sm truncate">
+          {playlist[currentSongIndex].title}
+        </p>
+        <p className="text-white/60 text-xs truncate">
+          {playlist[currentSongIndex].artist}
+        </p>
+      </div>
 
-      <motion.button
-        whileTap={{ scale: 0.95 }}
-        onClick={toggleMute}
-        className="w-8 h-8 flex items-center justify-center text-white hover:text-pink-400"
-      >
-        {isMuted ? <VolumeX size={20} /> : <Volume2 size={20} />}
-      </motion.button>
+      <div className="flex items-center gap-2">
+        <motion.button
+          whileTap={{ scale: 0.95 }}
+          onClick={previousSong}
+          className="w-8 h-8 flex items-center justify-center text-white hover:text-pink-400"
+        >
+          <SkipBack size={20} />
+        </motion.button>
 
-      <input
-        type="range"
-        min="0"
-        max="1"
-        step="0.01"
-        value={volume}
-        onChange={(e) => setVolume(parseFloat(e.target.value))}
-        className="w-24 h-2 bg-white/20 rounded-lg appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-pink-500 [&::-webkit-slider-thumb]:cursor-pointer"
-      />
+        <motion.button
+          whileTap={{ scale: 0.95 }}
+          onClick={togglePlay}
+          className="w-10 h-10 flex items-center justify-center bg-pink-600 hover:bg-pink-700 rounded-full text-white"
+        >
+          {audioStore.isPlaying ? <Pause size={20} /> : <Play size={20} />}
+        </motion.button>
+
+        <motion.button
+          whileTap={{ scale: 0.95 }}
+          onClick={nextSong}
+          className="w-8 h-8 flex items-center justify-center text-white hover:text-pink-400"
+        >
+          <SkipForward size={20} />
+        </motion.button>
+
+        <motion.button
+          whileTap={{ scale: 0.95 }}
+          onClick={toggleMute}
+          className="w-8 h-8 flex items-center justify-center text-white hover:text-pink-400"
+        >
+          {audioStore.isMuted ? <VolumeX size={20} /> : <Volume2 size={20} />}
+        </motion.button>
+
+        <input
+          type="range"
+          min="0"
+          max="1"
+          step="0.01"
+          value={audioStore.volume}
+          onChange={(e) => audioStore.setVolume(parseFloat(e.target.value))}
+          className="w-24 h-2 bg-white/20 rounded-lg appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-pink-500 [&::-webkit-slider-thumb]:cursor-pointer"
+        />
+      </div>
     </div>
   )
 }
