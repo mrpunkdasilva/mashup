@@ -8,7 +8,7 @@ export type ChatMessage = {
   sender: {
     id: string
     name: string
-    avatar?: string
+    avatar: string
   }
   timestamp: Date
 }
@@ -16,7 +16,7 @@ export type ChatMessage = {
 export type User = {
   id: string
   name: string
-  avatar?: string
+  avatar: string
 }
 
 export const users = new Map<string, User>()
@@ -36,7 +36,8 @@ export function initializeSocket(httpServer: HttpServer) {
     socket.on('join', (userData: Omit<User, 'id'>) => {
       const user: User = {
         id: socket.id,
-        ...userData
+        name: userData.name,
+        avatar: userData.avatar
       }
       users.set(socket.id, user)
       
@@ -45,7 +46,8 @@ export function initializeSocket(httpServer: HttpServer) {
         text: `${user.name} entrou no chat!`,
         sender: {
           id: 'system',
-          name: 'Sistema'
+          name: 'Sistema',
+          avatar: 'https://api.dicebear.com/7.x/bottts/svg?seed=system'
         },
         timestamp: new Date()
       }

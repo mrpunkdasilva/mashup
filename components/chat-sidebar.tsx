@@ -18,7 +18,39 @@ const getInitials = (name: string) => {
     .slice(0, 2)
 }
 
-const DEFAULT_AVATAR = 'https://github.com/shadcn.png'
+const AVATAR_STYLES = [
+  'adventurer',
+  'adventurer-neutral',
+  'avataaars',
+  'big-ears',
+  'big-ears-neutral',
+  'big-smile',
+  'bottts',
+  'croodles',
+  'croodles-neutral',
+  'fun-emoji',
+  'icons',
+  'identicon',
+  'initials',
+  'lorelei',
+  'lorelei-neutral',
+  'micah',
+  'miniavs',
+  'notionists',
+  'notionists-neutral',
+  'open-peeps',
+  'personas',
+  'pixel-art',
+  'pixel-art-neutral',
+  'shapes',
+  'thumbs'
+]
+
+const generateRandomAvatar = (name: string) => {
+  const style = AVATAR_STYLES[Math.floor(Math.random() * AVATAR_STYLES.length)]
+  const seed = encodeURIComponent(name)
+  return `https://api.dicebear.com/7.x/${style}/svg?seed=${seed}`
+}
 
 export function ChatSidebar() {
   const { messages, users, connected, joinChat, sendMessage, socket } = useChat()
@@ -34,13 +66,14 @@ export function ChatSidebar() {
 
   const handleJoinChat = () => {
     if (!userName.trim()) return
-    joinChat(userName, DEFAULT_AVATAR)
+    const avatar = generateRandomAvatar(userName)
+    joinChat(userName, avatar)
     setShowJoinDialog(false)
   }
 
   const renderAvatar = (sender: { name: string; avatar?: string }) => (
     <Avatar className="h-8 w-8">
-      <AvatarImage src={sender.avatar || DEFAULT_AVATAR} alt={sender.name} />
+      <AvatarImage src={sender.avatar || generateRandomAvatar(sender.name)} alt={sender.name} />
       <AvatarFallback>{getInitials(sender.name)}</AvatarFallback>
     </Avatar>
   )
