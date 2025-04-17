@@ -26,7 +26,8 @@ export function initializeSocket(httpServer: HttpServer) {
   const io = new SocketIOServer(httpServer, {
     cors: {
       origin: process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
-      methods: ['GET', 'POST']
+      methods: ['GET', 'POST'],
+      credentials: true
     }
   })
 
@@ -83,7 +84,8 @@ export function initializeSocket(httpServer: HttpServer) {
         text: `${user.name} saiu do chat`,
         sender: {
           id: 'system',
-          name: 'Sistema'
+          name: 'Sistema',
+          avatar: 'https://api.dicebear.com/7.x/bottts/svg?seed=system'
         },
         timestamp: new Date()
       }
