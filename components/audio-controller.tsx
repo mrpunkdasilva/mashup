@@ -1,10 +1,11 @@
 "use client"
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { Volume2, VolumeX, Play, Pause, SkipForward, SkipBack } from 'lucide-react'
-import { playlist, type Song } from '@/lib/playlist'
+import { playlist, getChunkedAudio } from '@/lib/playlist'
 import { useAudioStore } from '@/hooks/use-audio-store'
+import { useChunkedAudio } from '@/hooks/use-chunked-audio'
 
 interface AudioControllerProps {
   className?: string
@@ -13,45 +14,19 @@ interface AudioControllerProps {
 export default function AudioController({ className }: AudioControllerProps) {
   const audioStore = useAudioStore()
   const [currentSongIndex, setCurrentSongIndex] = useState(0)
-  const audioRef = useRef<HTMLAudioElement | null>(null)
-
-  useEffect(() => {
-    audioRef.current = new Audio(playlist[currentSongIndex].url)
-    audioRef.current.loop = false
-    audioRef.current.volume = audioStore.volume
-
-    return () => {
-      if (audioRef.current) {
-        audioRef.current.pause()
-        audioRef.current = null
-      }
-    }
-  }, [currentSongIndex])
-
-  useEffect(() => {
-    if (audioRef.current) {
-      audioRef.current.volume = audioStore.isMuted ? 0 : audioStore.volume
-    }
-  }, [audioStore.volume, audioStore.isMuted])
-
-  useEffect(() => {
-    if (!audioRef.current) return
-
-    const handleEnded = () => {
-      nextSong()
-    }
-
-    audioRef.current.addEventListener('ended', handleEnded)
-    return () => audioRef.current?.removeEventListener('ended', handleEnded)
-  }, [currentSongIndex])
+  
+  const currentSong = playlist[currentSongIndex]
+  const chunkedAudio = getChunkedAudio(currentSong)
+  
+  const { isLoaded, currentChunkIndex } = useChunkedAudio({
+    audio: chunkedAudio,
+    volume: audioStore.volume,
+    isMuted: audioStore.isMuted,
+    isPlaying: audioStore.isPlaying
+  })
 
   const togglePlay = () => {
-    if (audioRef.current) {
-      if (audioStore.isPlaying) {
-        audioRef.current.pause()
-      } else {
-        audioRef.current.play()
-      }
+    if (isLoaded) {
       audioStore.setPlaying(!audioStore.isPlaying)
     }
   }
@@ -63,27 +38,22 @@ export default function AudioController({ className }: AudioControllerProps) {
   const nextSong = () => {
     const newIndex = (currentSongIndex + 1) % playlist.length
     setCurrentSongIndex(newIndex)
-    if (audioStore.isPlaying && audioRef.current) {
-      audioRef.current.play()
-    }
   }
 
   const previousSong = () => {
     const newIndex = (currentSongIndex - 1 + playlist.length) % playlist.length
     setCurrentSongIndex(newIndex)
-    if (audioStore.isPlaying && audioRef.current) {
-      audioRef.current.play()
-    }
   }
 
   return (
     <div className={`flex items-center gap-4 bg-black/20 backdrop-blur-sm rounded-lg p-3 ${className}`}>
       <div className="flex-1 min-w-0">
         <p className="text-white text-sm truncate">
-          {playlist[currentSongIndex].title}
+          {currentSong.title}
+          {currentSong.isChunked && ` (Part ${currentChunkIndex + 1}/${chunkedAudio.chunks.length})`}
         </p>
         <p className="text-white/60 text-xs truncate">
-          {playlist[currentSongIndex].artist}
+          {currentSong.artist}
         </p>
       </div>
 
