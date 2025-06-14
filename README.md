@@ -1,8 +1,9 @@
 # Mashup - Live Chat with Music and 3D Rendering
 
-An interactive project that combines live chat, music playback, and 3D character rendering, inspired by platforms like Habbo.
+An interactive project that combines live chat, music playback, and 3D character rendering, inspired by platforms like
+Habbo.
 
-## 🌟 Overview
+## Overview
 
 Mashup is an interactive social platform that allows users to:
 
@@ -11,9 +12,10 @@ Mashup is an interactive social platform that allows users to:
 - View and interact with 3D characters (in development)
 - Customize their virtual experience
 
-The project uses modern technologies like Next.js, React, Socket.IO, and Three.js to create an immersive and interactive web experience.
+The project uses modern technologies like Next.js, React, Socket.IO, and Three.js to create an immersive and interactive
+web experience.
 
-## 🚀 Technologies
+## Technologies
 
 - **Frontend**: Next.js 15, React 19, TailwindCSS
 - **Backend**: Node.js, Express, Socket.IO
@@ -22,7 +24,7 @@ The project uses modern technologies like Next.js, React, Socket.IO, and Three.j
 - **State Management**: Zustand
 - **Containerization**: Docker
 
-## 🛠️ Installation and Setup
+## Installation and Setup
 
 ### Prerequisites
 
@@ -65,7 +67,7 @@ The project uses modern technologies like Next.js, React, Socket.IO, and Three.j
 
 2. Access the project at: http://localhost:3000
 
-## 🏗️ Project Structure
+## Project Structure
 
 ```
 mashup/
@@ -91,22 +93,24 @@ mashup/
 └── ...
 ```
 
-## 🎮 Features
+## Features
 
 ### Implemented
+
 - Real-time chat system
 - Music playback
 - Responsive user interface
 - Basic 3D rendering
 
 ### In Development
+
 - Avatar customization
 - Interactive 3D environments
 - Room system
 - Integration with music streaming platforms
 - Advanced animations and visual effects
 
-## 🤝 Contributing
+## Contributing
 
 Contributions are welcome! To contribute:
 
@@ -116,10 +120,3 @@ Contributions are welcome! To contribute:
 4. Push to the branch (`git push origin feature/new-feature`)
 5. Open a Pull Request
 
-## 📝 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 📞 Contact
-
-For questions or suggestions, please contact [your-email@example.com](mailto:your-email@example.com).
