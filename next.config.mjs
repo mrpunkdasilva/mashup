@@ -27,7 +27,9 @@ const nextConfig = {
   },
   env: {
     NEXT_PUBLIC_SOCKET_URL: process.env.NEXT_PUBLIC_SOCKET_URL || 'http://localhost:3000'
-  }
+  },
+  // Configuração para Docker
+  output: 'standalone',
 }
 
 if (userConfig) {

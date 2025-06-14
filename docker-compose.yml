@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  # Serviço principal - Next.js + Socket.IO
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - NEXT_PUBLIC_APP_URL=http://localhost:3000
+    volumes:
+      - ./public:/app/public
+    restart: unless-stopped
+    networks:
+      - mashup-network
+
+  # Serviço do servidor Socket.IO separado (opcional)
+  socket-server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+      - NEXT_PUBLIC_APP_URL=http://localhost:3000
+    restart: unless-stopped
+    networks:
+      - mashup-network
+
+networks:
+  mashup-network:
+    driver: bridge
